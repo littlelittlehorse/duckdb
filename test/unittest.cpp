@@ -4,6 +4,8 @@
 #include "duckdb/common/file_system.hpp"
 #include "test_helpers.hpp"
 
+#include "duckdb.hpp"
+
 using namespace duckdb;
 
 namespace duckdb {
@@ -15,7 +17,24 @@ bool TestForceStorage() {
 
 } // namespace duckdb
 
+void startup() {
+	DBConfig config;
+	string db_path = "duckdb_benchmark_db.db";
+	config.maximum_memory = 134217728;
+	DuckDB db(db_path, &config);
+	Connection con(db);
+
+	con.Query("CREATE TABLE integers(i INTEGER)");
+	con.Query("INSERT INTO integers VALUES (3)");
+	con.Query("UPDATE integers SET INTEGER = 2");
+	auto result = con.Query("SELECT * FROM integers");
+	result->Print();
+}
+
 int main(int argc, char *argv[]) {
+
+	startup();
+
 	string test_directory = DUCKDB_ROOT_DIRECTORY;
 
 	int new_argc = 0;
