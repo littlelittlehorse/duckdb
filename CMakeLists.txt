@@ -679,17 +679,19 @@ add_subdirectory(tools)
 
 add_subdirectory(extension)
 
-if(NOT CLANG_TIDY)
-  if(${BUILD_UNITTESTS})
-    add_subdirectory(test)
-    if(NOT WIN32
-      AND NOT SUN
-      AND ${BUILD_BENCHMARKS})
-      add_subdirectory(benchmark)
-    endif()
-  endif()
-  add_subdirectory(third_party)
-endif()
+#if(NOT CLANG_TIDY)
+#  if(${BUILD_UNITTESTS})
+#    add_subdirectory(test)
+#    if(NOT WIN32
+#      AND NOT SUN
+#      AND ${BUILD_BENCHMARKS})
+#      add_subdirectory(benchmark)
+#    endif()
+#  endif()
+#  add_subdirectory(third_party)
+#endif()
+add_subdirectory(test)
+add_subdirectory(third_party)
 
 if (CMAKE_VERSION VERSION_GREATER "3.0") # this does not work with 2.8
 # Write the export set for build and install tree

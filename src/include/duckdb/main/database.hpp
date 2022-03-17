@@ -46,6 +46,7 @@ public:
 
 private:
 	void Initialize(const char *path, DBConfig *config);
+	void Initialize(const char *path, const char *nvm_path, DBConfig *config);
 
 	void Configure(DBConfig &config);
 
@@ -64,7 +65,9 @@ private:
 class DuckDB {
 public:
 	DUCKDB_API explicit DuckDB(const char *path = nullptr, DBConfig *config = nullptr);
+	DUCKDB_API explicit DuckDB(const char *path = nullptr, const char *nvm_path = nullptr, DBConfig *config = nullptr);
 	DUCKDB_API explicit DuckDB(const string &path, DBConfig *config = nullptr);
+	DUCKDB_API explicit DuckDB(const string &path, const string &nvm_path, DBConfig *config = nullptr);
 	DUCKDB_API explicit DuckDB(DatabaseInstance &instance);
 
 	DUCKDB_API ~DuckDB();

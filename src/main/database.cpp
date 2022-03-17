@@ -137,6 +137,44 @@ void DatabaseInstance::Initialize(const char *path, DBConfig *new_config) {
 	scheduler->SetThreads(config.maximum_threads);
 }
 
+void DatabaseInstance::Initialize(const char *path, const char *nvm_path, DBConfig *new_config) {
+    if (new_config) {
+        // user-supplied configuration
+        Configure(*new_config);
+    } else {
+        // default configuration
+        DBConfig config;
+        Configure(config);
+    }
+    if (config.temporary_directory.empty() && path) {
+        // no directory specified: use default temp path
+        config.temporary_directory = string(path) + ".tmp";
+
+        // special treatment for in-memory mode
+        if (strcmp(path, ":memory:") == 0) {
+            config.temporary_directory = ".tmp";
+        }
+    }
+    if (new_config && !new_config->use_temporary_directory) {
+        // temporary directories explicitly disabled
+        config.temporary_directory = string();
+    }
+
+    storage =
+            make_unique<StorageManager>(*this, path ? string(path) : string(), nvm_path ? string(nvm_path) : string(), config.access_mode == AccessMode::READ_ONLY);
+    catalog = make_unique<Catalog>(*this);
+    transaction_manager = make_unique<TransactionManager>(*this);
+    scheduler = make_unique<TaskScheduler>();
+    object_cache = make_unique<ObjectCache>();
+    connection_manager = make_unique<ConnectionManager>();
+
+    // initialize the database
+    storage->NvmInitialize();
+
+    // only increase thread count after storage init because we get races on catalog otherwise
+    scheduler->SetThreads(config.maximum_threads);
+}
+
 DuckDB::DuckDB(const char *path, DBConfig *new_config) : instance(make_shared<DatabaseInstance>()) {
 	instance->Initialize(path, new_config);
 	if (instance->config.load_extensions) {
@@ -144,7 +182,18 @@ DuckDB::DuckDB(const char *path, DBConfig *new_config) : instance(make_shared<Da
 	}
 }
 
+DuckDB::DuckDB(const char *path, const char *nvm_path, DBConfig *new_config) : instance(make_shared<DatabaseInstance>()) {
+    instance->Initialize(path, nvm_path, new_config);
+    if (instance->config.load_extensions) {
+        ExtensionHelper::LoadAllExtensions(*this);
+    }
+}
+
 DuckDB::DuckDB(const string &path, DBConfig *config) : DuckDB(path.c_str(), config) {
+}
+
+DuckDB::DuckDB(const string &path, const string &nvm_path, DBConfig *config) : DuckDB(
+        path.c_str(), nvm_path.c_str(), config) {
 }
 
 DuckDB::DuckDB(DatabaseInstance &instance_p) : instance(instance_p.shared_from_this()) {

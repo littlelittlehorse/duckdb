@@ -25,6 +25,7 @@ class TableCatalogEntry;
 class StorageManager {
 public:
 	StorageManager(DatabaseInstance &db, string path, bool read_only);
+	StorageManager(DatabaseInstance &db, string path, string nvm_path, bool read_only);
 	~StorageManager();
 
 	//! The BlockManager to read/store meta information and data in blocks
@@ -40,6 +41,7 @@ public:
 
 	//! Initialize a database or load an existing database from the given path
 	void Initialize();
+	void NvmInitialize();
 	//! Get the WAL of the StorageManager, returns nullptr if in-memory
 	WriteAheadLog *GetWriteAheadLog() {
 		return wal.initialized ? &wal : nullptr;
@@ -59,9 +61,12 @@ public:
 private:
 	//! Load the database from a directory
 	void LoadDatabase();
+	void NvmLoadDatabase();
 
 	//! The path of the database
 	string path;
+	//! The nvm file path of the database
+	string nvm_path;
 	//! The WriteAheadLog of the storage manager
 	WriteAheadLog wal;
 
