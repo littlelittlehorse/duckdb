@@ -24,8 +24,13 @@ class SingleFileBlockManager : public BlockManager {
 	//! The location in the file where the block writing starts
 	static constexpr uint64_t BLOCK_START = Storage::FILE_HEADER_SIZE * 3;
 
+    // ! The new starting position of the block after the meta information is removed
+	static constexpr uint64_t NEW_BLOCK_START = 0;
+
 public:
 	SingleFileBlockManager(DatabaseInstance &db, string path, bool read_only, bool create_new, bool use_direct_io);
+
+	SingleFileBlockManager(DatabaseInstance &db, string path, string nvm_path, bool read_only, bool create_new, bool use_direct_io);
 
 	void StartCheckpoint() override;
 	//! Creates a new Block using the specified block_id and returns a pointer
@@ -70,8 +75,12 @@ private:
 	uint8_t active_header;
 	//! The path where the file is stored
 	string path;
+    //! The path where the file is stored
+    string nvm_path;
 	//! The file handle
 	unique_ptr<FileHandle> handle;
+    // ! The nvm file hand
+    unique_ptr<FileHandle> nvm_handle;
 	//! The buffer used to read/write to the headers
 	FileBuffer header_buffer;
 	//! The list of free blocks that can be written to currently

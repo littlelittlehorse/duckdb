@@ -182,6 +182,107 @@ SingleFileBlockManager::SingleFileBlockManager(DatabaseInstance &db, string path
 	}
 }
 
+SingleFileBlockManager::SingleFileBlockManager(DatabaseInstance &db, string path_p, string nvm_path, bool read_only, bool create_new,
+                                               bool use_direct_io)
+        : db(db), path(move(path_p)), nvm_path(move(nvm_path)),
+          header_buffer(Allocator::Get(db), FileBufferType::MANAGED_BUFFER, Storage::FILE_HEADER_SIZE), iteration_count(0),
+          read_only(read_only), use_direct_io(use_direct_io) {
+    uint8_t flags;
+    FileLockType lock;
+    if (read_only) {
+        D_ASSERT(!create_new);
+        flags = FileFlags::FILE_FLAGS_READ;
+        lock = FileLockType::READ_LOCK;
+    } else {
+        flags = FileFlags::FILE_FLAGS_WRITE | FileFlags::FILE_FLAGS_READ;
+        lock = FileLockType::WRITE_LOCK;
+        if (create_new) {
+            flags |= FileFlags::FILE_FLAGS_FILE_CREATE;
+        }
+    }
+    if (use_direct_io) {
+        flags |= FileFlags::FILE_FLAGS_DIRECT_IO;
+    }
+    // open the RDBMS handle
+    auto &fs = FileSystem::GetFileSystem(db);
+    handle = fs.OpenFile(path, flags, lock);
+    nvm_handle = fs.OpenFile(nvm_path, flags, lock);
+    if (create_new) {
+        // if we create a new file, we fill the metadata of the file
+        // first fill in the new header
+        header_buffer.Clear();
+
+        MainHeader main_header;
+        main_header.version_number = VERSION_NUMBER;
+        memset(main_header.flags, 0, sizeof(uint64_t) * 4);
+
+        SerializeHeaderStructure<MainHeader>(main_header, header_buffer.buffer);
+        // now write the header to the file
+        header_buffer.ChecksumAndWrite(*nvm_handle, 0);
+        header_buffer.Clear();
+
+        // write the database headers
+        // initialize meta_block and free_list to INVALID_BLOCK because the database file does not contain any actual
+        // content yet
+        DatabaseHeader h1, h2;
+        // header 1
+        h1.iteration = 0;
+        h1.meta_block = INVALID_BLOCK;
+        h1.free_list = INVALID_BLOCK;
+        h1.block_count = 0;
+        SerializeHeaderStructure<DatabaseHeader>(h1, header_buffer.buffer);
+        header_buffer.ChecksumAndWrite(*nvm_handle, Storage::FILE_HEADER_SIZE);
+        // header 2
+        h2.iteration = 0;
+        h2.meta_block = INVALID_BLOCK;
+        h2.free_list = INVALID_BLOCK;
+        h2.block_count = 0;
+        SerializeHeaderStructure<DatabaseHeader>(h2, header_buffer.buffer);
+        header_buffer.ChecksumAndWrite(*nvm_handle, Storage::FILE_HEADER_SIZE * 2);
+        // ensure that writing to disk is completed before returning
+        nvm_handle->Sync();
+        // we start with h2 as active_header, this way our initial write will be in h1
+        iteration_count = 0;
+        active_header = 1;
+        max_block = 0;
+    } else {
+        MainHeader::CheckMagicBytes(*nvm_handle);
+        // otherwise, we check the metadata of the file
+        header_buffer.ReadAndChecksum(*nvm_handle, 0);
+        MainHeader header = DeserializeHeaderStructure<MainHeader>(header_buffer.buffer);
+        // check the version number
+        if (header.version_number != VERSION_NUMBER) {
+            throw IOException(
+                    "Trying to read a database file with version number %lld, but we can only read version %lld.\n"
+                    "The database file was created with an %s version of DuckDB.\n\n"
+                    "The storage of DuckDB is not yet stable; newer versions of DuckDB cannot read old database files and "
+                    "vice versa.\n"
+                    "The storage will be stabilized when version 1.0 releases.\n\n"
+                    "For now, we recommend that you load the database file in a supported version of DuckDB, and use the "
+                    "EXPORT DATABASE command "
+                    "followed by IMPORT DATABASE on the current version of DuckDB.",
+                    header.version_number, VERSION_NUMBER, VERSION_NUMBER > header.version_number ? "older" : "newer");
+        }
+
+        // read the database headers from disk
+        DatabaseHeader h1, h2;
+        header_buffer.ReadAndChecksum(*nvm_handle, Storage::FILE_HEADER_SIZE);
+        h1 = DeserializeHeaderStructure<DatabaseHeader>(header_buffer.buffer);
+        header_buffer.ReadAndChecksum(*nvm_handle, Storage::FILE_HEADER_SIZE * 2);
+        h2 = DeserializeHeaderStructure<DatabaseHeader>(header_buffer.buffer);
+        // check the header with the highest iteration count
+        if (h1.iteration > h2.iteration) {
+            // h1 is active header
+            active_header = 0;
+            Initialize(h1);
+        } else {
+            // h2 is active header
+            active_header = 1;
+            Initialize(h2);
+        }
+    }
+}
+
 void SingleFileBlockManager::Initialize(DatabaseHeader &header) {
 	free_list_id = header.free_list;
 	meta_block = header.meta_block;
@@ -273,12 +374,17 @@ unique_ptr<Block> SingleFileBlockManager::CreateBlock(block_id_t block_id) {
 void SingleFileBlockManager::Read(Block &block) {
 	D_ASSERT(block.id >= 0);
 	D_ASSERT(std::find(free_list.begin(), free_list.end(), block.id) == free_list.end());
-	block.ReadAndChecksum(*handle, BLOCK_START + block.id * Storage::BLOCK_ALLOC_SIZE);
+	// block.ReadAndChecksum(*handle, BLOCK_START + block.id * Storage::BLOCK_ALLOC_SIZE);
+
+    // ! Changes the offset at which blocks are read in a file
+	block.ReadAndChecksum(*handle, NEW_BLOCK_START + block.id * Storage::BLOCK_ALLOC_SIZE);
 }
 
 void SingleFileBlockManager::Write(FileBuffer &buffer, block_id_t block_id) {
 	D_ASSERT(block_id >= 0);
-	buffer.ChecksumAndWrite(*handle, BLOCK_START + block_id * Storage::BLOCK_ALLOC_SIZE);
+
+    // ! Changes the offset at which blocks are written in a file
+	buffer.ChecksumAndWrite(*handle, NEW_BLOCK_START + block_id * Storage::BLOCK_ALLOC_SIZE);
 }
 
 vector<block_id_t> SingleFileBlockManager::GetFreeListBlocks() {
