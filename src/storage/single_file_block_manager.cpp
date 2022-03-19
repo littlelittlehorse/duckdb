@@ -182,9 +182,9 @@ SingleFileBlockManager::SingleFileBlockManager(DatabaseInstance &db, string path
 	}
 }
 
-SingleFileBlockManager::SingleFileBlockManager(DatabaseInstance &db, string path_p, string nvm_path, bool read_only, bool create_new,
+SingleFileBlockManager::SingleFileBlockManager(DatabaseInstance &db, string path_p, string nvm_path_p, bool read_only, bool create_new,
                                                bool use_direct_io)
-        : db(db), path(move(path_p)), nvm_path(move(nvm_path)),
+        : db(db), path(move(path_p)), nvm_path(move(nvm_path_p)),
           header_buffer(Allocator::Get(db), FileBufferType::MANAGED_BUFFER, Storage::FILE_HEADER_SIZE), iteration_count(0),
           read_only(read_only), use_direct_io(use_direct_io) {
     uint8_t flags;
@@ -205,8 +205,8 @@ SingleFileBlockManager::SingleFileBlockManager(DatabaseInstance &db, string path
     }
     // open the RDBMS handle
     auto &fs = FileSystem::GetFileSystem(db);
+	nvm_handle = fs.OpenFile(nvm_path, flags, lock);
     handle = fs.OpenFile(path, flags, lock);
-    nvm_handle = fs.OpenFile(nvm_path, flags, lock);
     if (create_new) {
         // if we create a new file, we fill the metadata of the file
         // first fill in the new header
