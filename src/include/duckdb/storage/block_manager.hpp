@@ -39,14 +39,19 @@ public:
 	virtual block_id_t GetMetaBlock() = 0;
 	//! Read the content of the block from disk
 	virtual void Read(Block &block) = 0;
+	//! Read the content of the block from disk
+	virtual void NvmRead(Block &block) = 0;
 	//! Writes the block to disk
 	virtual void Write(FileBuffer &block, block_id_t block_id) = 0;
+	//! Writes the block to disk
+	virtual void NvmWrite(FileBuffer &block, block_id_t block_id) = 0;
 	//! Writes the block to disk
 	void Write(Block &block) {
 		Write(block, block.id);
 	}
 	//! Write the header; should be the final step of a checkpoint
 	virtual void WriteHeader(DatabaseHeader header) = 0;
+	virtual void NvmWriteHeader(DatabaseHeader header) = 0;
 
 	//! Returns the number of total blocks
 	virtual idx_t TotalBlocks() = 0;

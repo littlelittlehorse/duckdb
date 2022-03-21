@@ -82,7 +82,9 @@ void CheckpointManager::CreateCheckpoint() {
 	// finally write the updated header
 	DatabaseHeader header;
 	header.meta_block = meta_block;
-	block_manager.WriteHeader(header);
+
+	// block_manager.WriteHeader(header);
+	block_manager.NvmWriteHeader(header);
 
 	if (config.checkpoint_abort == CheckpointAbort::DEBUG_ABORT_BEFORE_TRUNCATE) {
 		throw IOException("Checkpoint aborted before truncate because of PRAGMA checkpoint_abort flag");

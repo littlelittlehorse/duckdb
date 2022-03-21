@@ -376,6 +376,15 @@ void SingleFileBlockManager::Read(Block &block) {
 	D_ASSERT(std::find(free_list.begin(), free_list.end(), block.id) == free_list.end());
 	// block.ReadAndChecksum(*handle, BLOCK_START + block.id * Storage::BLOCK_ALLOC_SIZE);
 
+	// ! Changes the offset at which blocks are read in a file
+	block.ReadAndChecksum(*handle, NEW_BLOCK_START + block.id * Storage::BLOCK_ALLOC_SIZE);
+}
+
+void SingleFileBlockManager::NvmRead(Block &block) {
+	D_ASSERT(block.id >= 0);
+	D_ASSERT(std::find(free_list.begin(), free_list.end(), block.id) == free_list.end());
+	// block.ReadAndChecksum(*handle, BLOCK_START + block.id * Storage::BLOCK_ALLOC_SIZE);
+
     // ! Changes the offset at which blocks are read in a file
 	block.ReadAndChecksum(*handle, NEW_BLOCK_START + block.id * Storage::BLOCK_ALLOC_SIZE);
 }
@@ -384,6 +393,14 @@ void SingleFileBlockManager::Write(FileBuffer &buffer, block_id_t block_id) {
 	D_ASSERT(block_id >= 0);
 
     // ! Changes the offset at which blocks are written in a file
+	// buffer.ChecksumAndWrite(*handle, BLOCK_START + block_id * Storage::BLOCK_ALLOC_SIZE);
+	buffer.ChecksumAndWrite(*handle, NEW_BLOCK_START + block_id * Storage::BLOCK_ALLOC_SIZE);
+}
+
+void SingleFileBlockManager::NvmWrite(FileBuffer &buffer, block_id_t block_id) {
+	D_ASSERT(block_id >= 0);
+
+	// ! Changes the offset at which blocks are written in a file
 	buffer.ChecksumAndWrite(*handle, NEW_BLOCK_START + block_id * Storage::BLOCK_ALLOC_SIZE);
 }
 
@@ -497,6 +514,72 @@ void SingleFileBlockManager::WriteHeader(DatabaseHeader header) {
 	// now write the header to the file, active_header determines whether we write to h1 or h2
 	// note that if active_header is h1 we write to h2, and vice versa
 	header_buffer.ChecksumAndWrite(*handle,
+	                               active_header == 1 ? Storage::FILE_HEADER_SIZE : Storage::FILE_HEADER_SIZE * 2);
+	// switch active header to the other header
+	active_header = 1 - active_header;
+	//! Ensure the header write ends up on disk
+	handle->Sync();
+}
+
+void SingleFileBlockManager::NvmWriteHeader(DatabaseHeader header) {
+	// set the iteration count
+	header.iteration = ++iteration_count;
+
+	vector<block_id_t> free_list_blocks = GetFreeListBlocks();
+
+	// now handle the free list
+	// add all modified blocks to the free list: they can now be written to again
+	for (auto &block : modified_blocks) {
+		free_list.insert(block);
+	}
+	modified_blocks.clear();
+
+	if (!free_list_blocks.empty()) {
+		// there are blocks to write, either in the free_list or in the modified_blocks
+		// we write these blocks specifically to the free_list_blocks
+		// a normal MetaBlockWriter will fetch blocks to use from the free_list
+		// but since we are WRITING the free_list, this behavior is sub-optimal
+
+		FreeListBlockWriter writer(db, free_list_blocks);
+
+		D_ASSERT(writer.block->id == free_list_blocks[0]);
+		header.free_list = writer.block->id;
+		for (auto &block_id : free_list_blocks) {
+			modified_blocks.insert(block_id);
+		}
+
+		writer.Write<uint64_t>(free_list.size());
+		for (auto &block_id : free_list) {
+			writer.Write<block_id_t>(block_id);
+		}
+		writer.Write<uint64_t>(multi_use_blocks.size());
+		for (auto &entry : multi_use_blocks) {
+			writer.Write<block_id_t>(entry.first);
+			writer.Write<uint32_t>(entry.second);
+		}
+		writer.Flush();
+	} else {
+		// no blocks in the free list
+		header.free_list = INVALID_BLOCK;
+	}
+	header.block_count = max_block;
+
+	auto &config = DBConfig::GetConfig(db);
+	if (config.checkpoint_abort == CheckpointAbort::DEBUG_ABORT_AFTER_FREE_LIST_WRITE) {
+		throw IOException("Checkpoint aborted after free list write because of PRAGMA checkpoint_abort flag");
+	}
+
+	if (!use_direct_io) {
+		// if we are not using Direct IO we need to fsync BEFORE we write the header to ensure that all the previous
+		// blocks are written as well
+		handle->Sync();
+	}
+	// set the header inside the buffer
+	header_buffer.Clear();
+	Store<DatabaseHeader>(header, header_buffer.buffer);
+	// now write the header to the file, active_header determines whether we write to h1 or h2
+	// note that if active_header is h1 we write to h2, and vice versa
+	header_buffer.ChecksumAndWrite(*nvm_handle,
 	                               active_header == 1 ? Storage::FILE_HEADER_SIZE : Storage::FILE_HEADER_SIZE * 2);
 	// switch active header to the other header
 	active_header = 1 - active_header;

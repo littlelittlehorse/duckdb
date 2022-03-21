@@ -79,7 +79,7 @@ void StorageManager::Initialize() {
 
 	if (!in_memory) {
 		// create or load the database from disk, if not in-memory mode
-		LoadDatabase();
+		NvmLoadDatabase();
 	} else {
 		block_manager = make_unique<InMemoryBlockManager>();
 		buffer_manager = make_unique<BufferManager>(db, config.temporary_directory, config.maximum_memory);

@@ -47,10 +47,15 @@ public:
 	block_id_t GetMetaBlock() override;
 	//! Read the content of the block from disk
 	void Read(Block &block) override;
+	//! Read the content of the block from nvm disk
+	void NvmRead(Block &block) override;
 	//! Write the given block to disk
 	void Write(FileBuffer &block, block_id_t block_id) override;
+	//! Write the given block to nvm disk
+	void NvmWrite(FileBuffer &block, block_id_t block_id) override;
 	//! Write the header to disk, this is the final step of the checkpointing process
 	void WriteHeader(DatabaseHeader header) override;
+	void NvmWriteHeader(DatabaseHeader header) override;
 
 	//! Returns the number of total blocks
 	idx_t TotalBlocks() override {

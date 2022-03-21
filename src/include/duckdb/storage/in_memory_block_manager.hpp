@@ -42,10 +42,19 @@ public:
 	void Read(Block &block) override {
 		throw InternalException("Cannot perform IO in in-memory database!");
 	}
+	void NvmRead(Block &block) override {
+		throw InternalException("Cannot perform IO in in-memory database!");
+	}
 	void Write(FileBuffer &block, block_id_t block_id) override {
 		throw InternalException("Cannot perform IO in in-memory database!");
 	}
+	void NvmWrite(FileBuffer &block, block_id_t block_id) override {
+		throw InternalException("Cannot perform IO in in-memory database!");
+	}
 	void WriteHeader(DatabaseHeader header) override {
+		throw InternalException("Cannot perform IO in in-memory database!");
+	}
+	void NvmWriteHeader(DatabaseHeader header) override {
 		throw InternalException("Cannot perform IO in in-memory database!");
 	}
 	idx_t TotalBlocks() override {
