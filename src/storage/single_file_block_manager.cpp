@@ -404,7 +404,8 @@ unique_ptr<Block> SingleFileBlockManager::CreateBlock(block_id_t block_id) {
 void SingleFileBlockManager::Read(Block &block) {
 	D_ASSERT(block.id >= 0);
 	D_ASSERT(std::find(free_list.begin(), free_list.end(), block.id) == free_list.end());
-	block.ReadAndChecksum(*handle, NEW_BLOCK_START + block.id * Storage::BLOCK_ALLOC_SIZE);
+	NvmRead(block);
+//	block.ReadAndChecksum(*handle, NEW_BLOCK_START + block.id * Storage::BLOCK_ALLOC_SIZE);
 //	auto pos = block_location.find(block.id);
 //	if (pos == block_location.end()) {
 //		throw InternalException("block is not found in block_location.");
@@ -474,10 +475,7 @@ void SingleFileBlockManager::Write(FileBuffer &buffer, block_id_t block_id) {
 
     // ! Changes the offset at which blocks are written in a file
 	// buffer.ChecksumAndWrite(*handle, BLOCK_START + block_id * Storage::BLOCK_ALLOC_SIZE);
-	if (block_location[-1] == 1)
-		buffer.ChecksumAndWrite(*handle, NEW_BLOCK_START + block_id * Storage::BLOCK_ALLOC_SIZE);
-	else
-		NvmWrite(buffer, block_id);
+	NvmWrite(buffer, block_id);
 
 }
 
