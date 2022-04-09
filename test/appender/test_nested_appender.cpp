@@ -9,7 +9,7 @@ using namespace std;
 
 TEST_CASE("Test appender with lists", "[appender]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE lists(i INTEGER[])"));
@@ -32,7 +32,7 @@ TEST_CASE("Test appender with lists", "[appender]") {
 
 TEST_CASE("Test appender with nested lists", "[appender]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE lists(i INTEGER[][])"));

@@ -6,7 +6,7 @@ using namespace std;
 
 TEST_CASE("Test prepared statements API", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// prepare no statements
@@ -49,7 +49,7 @@ TEST_CASE("Test prepared statements API", "[api]") {
 }
 
 TEST_CASE("Test type resolution of function with parameter expressions", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	unique_ptr<QueryResult> result;
 	con.EnableQueryVerification();
@@ -64,7 +64,7 @@ TEST_CASE("Test type resolution of function with parameter expressions", "[api]"
 
 TEST_CASE("Test prepared statements and dependencies", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db), con2(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE a(i TINYINT)"));
@@ -90,7 +90,7 @@ TEST_CASE("Test prepared statements and dependencies", "[api]") {
 
 TEST_CASE("Dropping connection with prepared statement resets dependencies", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	auto con = make_unique<Connection>(db);
 	Connection con2(db);
 
@@ -111,7 +111,7 @@ TEST_CASE("Dropping connection with prepared statement resets dependencies", "[a
 
 TEST_CASE("Alter table and prepared statements", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	auto con = make_unique<Connection>(db);
 	Connection con2(db);
 
@@ -142,7 +142,7 @@ TEST_CASE("Test destructors of prepared statements", "[api]") {
 	unique_ptr<QueryResult> result;
 
 	// test destruction of connection
-	db = make_unique<DuckDB>(nullptr);
+	db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	con = make_unique<Connection>(*db);
 	// create a prepared statement
 	prepare = con->Prepare("SELECT $1::INTEGER+$2::INTEGER");
@@ -176,7 +176,7 @@ TEST_CASE("Test destructors of prepared statements", "[api]") {
 
 TEST_CASE("Test incorrect usage of prepared statements API", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE a (i TINYINT)"));
@@ -205,7 +205,7 @@ TEST_CASE("Test incorrect usage of prepared statements API", "[api]") {
 
 TEST_CASE("Test multiple prepared statements", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE a (i TINYINT)"));
@@ -223,7 +223,7 @@ TEST_CASE("Test multiple prepared statements", "[api]") {
 
 TEST_CASE("Test prepared statements and transactions", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// create prepared statements in a transaction
@@ -247,7 +247,7 @@ TEST_CASE("Test prepared statements and transactions", "[api]") {
 
 TEST_CASE("Test prepared statement parameter counting", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	auto p0 = con.Prepare("SELECT 42");
@@ -280,7 +280,7 @@ TEST_CASE("Test prepared statement parameter counting", "[api]") {
 
 TEST_CASE("Test ANALYZE", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	con.EnableQueryVerification();
 
@@ -301,7 +301,7 @@ TEST_CASE("Test ANALYZE", "[api]") {
 
 TEST_CASE("Test DECIMAL with PreparedStatement", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	auto ps = con.Prepare("SELECT $1::DECIMAL(4,1), $2::DECIMAL(9,1), $3::DECIMAL(18,3), $4::DECIMAL(38,8)");
@@ -314,7 +314,7 @@ TEST_CASE("Test DECIMAL with PreparedStatement", "[api]") {
 
 TEST_CASE("Test BLOB with PreparedStatement", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// Creating a blob buffer with almost ALL ASCII chars
@@ -355,7 +355,7 @@ TEST_CASE("Test BLOB with PreparedStatement", "[api]") {
 
 TEST_CASE("PREPARE for INSERT with dates", "[prepared]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// prepared DATE insert
@@ -377,7 +377,7 @@ TEST_CASE("PREPARE for INSERT with dates", "[prepared]") {
 
 TEST_CASE("PREPARE multiple statements", "[prepared]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	string query = "SELECT $1::INTEGER; SELECT $1::INTEGER;";
@@ -404,7 +404,7 @@ static unique_ptr<QueryResult> TestExecutePrepared(Connection &con, string query
 
 TEST_CASE("Prepare all types of statements", "[prepared]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	auto &fs = db.GetFileSystem();
 

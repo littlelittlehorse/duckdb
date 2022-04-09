@@ -80,7 +80,7 @@ public:
 
 TEST_CASE("Concurrent default catalog using Scan", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// enable detailed profiling
@@ -103,7 +103,7 @@ TEST_CASE("Concurrent default catalog using Scan", "[interquery][.]") {
 
 TEST_CASE("Concurrent default catalog using Queries", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// enable detailed profiling
@@ -126,7 +126,7 @@ TEST_CASE("Concurrent default catalog using Queries", "[interquery][.]") {
 
 TEST_CASE("Concurrent default function creation", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// enable detailed profiling

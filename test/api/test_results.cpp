@@ -8,7 +8,7 @@ using namespace duckdb;
 using namespace std;
 
 TEST_CASE("Test results API", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// result equality
@@ -38,7 +38,7 @@ TEST_CASE("Test results API", "[api]") {
 }
 
 TEST_CASE("Test iterating over results", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE data(i INTEGER, j VARCHAR)"));
@@ -57,7 +57,7 @@ TEST_CASE("Test iterating over results", "[api]") {
 }
 
 TEST_CASE("Test different result types", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(
@@ -100,7 +100,7 @@ TEST_CASE("Test different result types", "[api]") {
 }
 
 TEST_CASE("Test dates/times/timestamps", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE data(i DATE, j TIME, k TIMESTAMP)"));
@@ -145,7 +145,7 @@ TEST_CASE("Test dates/times/timestamps", "[api]") {
 }
 
 TEST_CASE("Error in streaming result after initial query", "[api][.]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// create a big table with strings that are numbers
@@ -171,7 +171,7 @@ TEST_CASE("Error in streaming result after initial query", "[api][.]") {
 }
 
 TEST_CASE("Test UUID", "[api][uuid]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE uuids (u uuid)"));
@@ -192,7 +192,7 @@ TEST_CASE("Test UUID", "[api][uuid]") {
 }
 
 TEST_CASE("Test ARRAY_AGG with ORDER BY", "[api][array_agg]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE t2 (a INT, b INT, c INT)"));

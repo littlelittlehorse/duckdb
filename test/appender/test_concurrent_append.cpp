@@ -33,7 +33,7 @@ TEST_CASE("Test concurrent appends", "[appender][.]") {
 	unique_ptr<QueryResult> result;
 	DBConfig config;
 	config.maximum_threads = 1;
-	DuckDB db(nullptr, &config);
+	DuckDB db(nullptr, nullptr, &config);
 	Connection con(db);
 
 	// create a single table to append to

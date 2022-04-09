@@ -14,7 +14,7 @@ static constexpr int CONCURRENT_DELETE_INSERT_ELEMENTS = 100;
 
 TEST_CASE("Single thread delete", "[interquery][.]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	vector<unique_ptr<Connection>> connections;
 
@@ -49,7 +49,7 @@ TEST_CASE("Single thread delete", "[interquery][.]") {
 
 TEST_CASE("Sequential delete", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	vector<unique_ptr<Connection>> connections;
 	Value count;
@@ -110,7 +110,7 @@ TEST_CASE("Sequential delete", "[interquery][.]") {
 
 TEST_CASE("Rollback delete", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	vector<unique_ptr<Connection>> connections;
 
@@ -189,7 +189,7 @@ static void delete_elements(DuckDB *db, bool *correct, size_t threadnr) {
 
 TEST_CASE("Concurrent delete", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// enable detailed profiling

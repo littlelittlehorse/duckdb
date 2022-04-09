@@ -10,7 +10,7 @@ using namespace std;
 
 TEST_CASE("Vectorized UDF functions using arguments", "[coverage][.]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	con.EnableQueryVerification();
 

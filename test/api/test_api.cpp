@@ -11,7 +11,7 @@ using namespace duckdb;
 using namespace std;
 
 TEST_CASE("Test using connection after database is gone", "[api]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	auto conn = make_unique<Connection>(*db);
 	// check that the connection works
 	auto result = conn->Query("SELECT 42");
@@ -23,7 +23,7 @@ TEST_CASE("Test using connection after database is gone", "[api]") {
 	REQUIRE_NO_FAIL(conn->Query("SELECT 42"));
 
 	// now try it with an open transaction
-	db = make_unique<DuckDB>(nullptr);
+	db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	conn = make_unique<Connection>(*db);
 
 	REQUIRE_NO_FAIL(conn->Query("BEGIN TRANSACTION"));
@@ -36,7 +36,7 @@ TEST_CASE("Test using connection after database is gone", "[api]") {
 }
 
 TEST_CASE("Test destroying connections with open transactions", "[api]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	{
 		Connection con(*db);
 		con.Query("BEGIN TRANSACTION");
@@ -57,7 +57,7 @@ static void long_running_query(Connection *conn, bool *correct) {
 }
 
 TEST_CASE("Test closing database during long running query", "[api]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	auto conn = make_unique<Connection>(*db);
 	// create the database
 	REQUIRE_NO_FAIL(conn->Query("CREATE TABLE integers(i INTEGER)"));
@@ -79,7 +79,7 @@ TEST_CASE("Test closing database during long running query", "[api]") {
 }
 
 TEST_CASE("Test closing result after database is gone", "[api]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	auto conn = make_unique<Connection>(*db);
 	// check that the connection works
 	auto result = conn->Query("SELECT 42");
@@ -90,7 +90,7 @@ TEST_CASE("Test closing result after database is gone", "[api]") {
 	result.reset();
 
 	// now the streaming result
-	db = make_unique<DuckDB>(nullptr);
+	db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	conn = make_unique<Connection>(*db);
 	// check that the connection works
 	auto streaming_result = conn->SendQuery("SELECT 42");
@@ -102,7 +102,7 @@ TEST_CASE("Test closing result after database is gone", "[api]") {
 }
 
 TEST_CASE("Test closing database with open prepared statements", "[api]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	auto conn = make_unique<Connection>(*db);
 
 	auto p1 = conn->Prepare("CREATE TABLE a (i INTEGER)");
@@ -131,7 +131,7 @@ static void parallel_query(Connection *conn, bool *correct, size_t threadnr) {
 }
 
 TEST_CASE("Test parallel usage of single client", "[api][.]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	auto conn = make_unique<Connection>(*db);
 
 	REQUIRE_NO_FAIL(conn->Query("CREATE TABLE integers(i INTEGER)"));
@@ -160,7 +160,7 @@ static void parallel_query_with_new_connection(DuckDB *db, bool *correct, size_t
 }
 
 TEST_CASE("Test making and dropping connections in parallel to a single database", "[api][.]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	auto conn = make_unique<Connection>(*db);
 
 	REQUIRE_NO_FAIL(conn->Query("CREATE TABLE integers(i INTEGER)"));
@@ -185,7 +185,7 @@ TEST_CASE("Test making and dropping connections in parallel to a single database
 
 TEST_CASE("Test multiple result sets", "[api]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	con.EnableQueryVerification();
 	con.DisableQueryVerification();
@@ -209,7 +209,7 @@ TEST_CASE("Test multiple result sets", "[api]") {
 
 TEST_CASE("Test streaming API errors", "[api]") {
 	unique_ptr<QueryResult> result, result2;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	con.EnableQueryVerification();
 
@@ -269,7 +269,7 @@ TEST_CASE("Test streaming API errors", "[api]") {
 }
 
 TEST_CASE("Test fetch API", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	con.EnableQueryVerification();
 
@@ -300,7 +300,7 @@ TEST_CASE("Test fetch API", "[api]") {
 }
 
 TEST_CASE("Test fetch API robustness", "[api]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	auto conn = make_unique<Connection>(*db);
 
 	// remove connection with active stream result
@@ -323,7 +323,7 @@ TEST_CASE("Test fetch API robustness", "[api]") {
 	REQUIRE_NO_FAIL(conn->SendQuery("SELECT 42"));
 
 	// override fetch result
-	db = make_unique<DuckDB>(nullptr);
+	db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	conn = make_unique<Connection>(*db);
 	auto result1 = conn->SendQuery("SELECT 42");
 	auto result2 = conn->SendQuery("SELECT 84");
@@ -369,7 +369,7 @@ static void VerifyStreamResult(unique_ptr<QueryResult> result) {
 }
 
 TEST_CASE("Test fetch API with big results", "[api][.]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	con.EnableQueryVerification();
 
@@ -401,7 +401,7 @@ TEST_CASE("Test fetch API with big results", "[api][.]") {
 }
 
 TEST_CASE("Test streaming query during stack unwinding", "[api]") {
-	DuckDB db;
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	try {
@@ -414,7 +414,7 @@ TEST_CASE("Test streaming query during stack unwinding", "[api]") {
 
 TEST_CASE("Test prepare dependencies with multiple connections", "[catalog]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	auto con = make_unique<Connection>(db);
 	auto con2 = make_unique<Connection>(db);
 	auto con3 = make_unique<Connection>(db);
@@ -447,7 +447,7 @@ TEST_CASE("Test prepare dependencies with multiple connections", "[catalog]") {
 }
 
 TEST_CASE("Test connection API", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	con.EnableQueryVerification();
 
@@ -487,14 +487,14 @@ TEST_CASE("Test opening an invalid database file", "[api]") {
 	unique_ptr<DuckDB> db;
 	bool success = false;
 	try {
-		db = make_unique<DuckDB>("data/parquet-testing/blob.parquet");
+		db = make_unique<DuckDB>("data/parquet-testing/blob.parquet", nullptr, nullptr);
 		success = true;
 	} catch (std::exception &ex) {
 		REQUIRE(StringUtil::Contains(ex.what(), "DuckDB"));
 	}
 	REQUIRE(!success);
 	try {
-		db = make_unique<DuckDB>("data/parquet-testing/h2oai/h2oai_group_small.parquet");
+		db = make_unique<DuckDB>("data/parquet-testing/h2oai/h2oai_group_small.parquet", nullptr, nullptr);
 		success = true;
 	} catch (std::exception &ex) {
 		REQUIRE(StringUtil::Contains(ex.what(), "DuckDB"));
@@ -503,7 +503,7 @@ TEST_CASE("Test opening an invalid database file", "[api]") {
 }
 
 TEST_CASE("Test large number of connections to a single database", "[api]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	auto context = make_unique<ClientContext>((*db).instance);
 	auto &connection_manager = ConnectionManager::Get(*context);
 

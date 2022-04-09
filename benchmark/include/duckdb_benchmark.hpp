@@ -24,7 +24,7 @@ struct DuckDBBenchmarkState : public BenchmarkState {
 	Connection conn;
 	unique_ptr<QueryResult> result;
 
-	DuckDBBenchmarkState(string path) : db(path.empty() ? nullptr : path.c_str()), conn(db) {
+	DuckDBBenchmarkState(string path, string nvm_path) : db(path.empty() ? nullptr : path.c_str(), nvm_path.empty() ? nullptr : nvm_path.c_str(), nullptr), conn(db) {
 		conn.EnableProfiling();
 		auto &instance = BenchmarkRunner::GetInstance();
 		auto res = conn.Query("PRAGMA threads=" + to_string(instance.threads));
@@ -68,7 +68,7 @@ public:
 	}
 
 	virtual unique_ptr<DuckDBBenchmarkState> CreateBenchmarkState() {
-		return make_unique<DuckDBBenchmarkState>(GetDatabasePath());
+		return make_unique<DuckDBBenchmarkState>(GetDatabasePath(), "nvm_duckdb_benchmark_db.db");
 	}
 
 	unique_ptr<BenchmarkState> Initialize(BenchmarkConfiguration &config) override {

@@ -10,7 +10,7 @@ using namespace duckdb;
 using namespace std;
 
 TEST_CASE("Test GetTableNames", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	unordered_set<string> table_names;
 

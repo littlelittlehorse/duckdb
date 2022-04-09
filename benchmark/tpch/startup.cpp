@@ -9,19 +9,21 @@ using namespace duckdb;
 
 #define TPCHStartup(QUERY)                                                                                             \
 	string db_path = "duckdb_benchmark_db.db";                                                                         \
+	string nvm_db_path = "nvm_duckdb_benchmark_db.db";                                                                     \
 	void Load(DuckDBBenchmarkState *state) override {                                                                  \
 		DeleteDatabase(db_path);                                                                                       \
 		{                                                                                                              \
             DBConfig config;                                                                                           \
             config.maximum_memory = 33554432;                                                                         \
-			DuckDB db(db_path, &config);                                                                               \
+			DuckDB db(db_path, nvm_db_path, &config);                                                                               \
 			Connection con(db);                                                                                        \
-			con.Query("CALL dbgen(sf=" + std::to_string(SF) + ")");                                                    \
+			con.Query("CALL dbgen(sf=" + std::to_string(SF) + ")");                                                             \
+        	printf("CALL Success");                                                                                                               \
 		}                                                                                                              \
 		{                                                                                                              \
 			auto config = GetConfig();                                                                                 \
 			config->checkpoint_wal_size = 0;                                                                           \
-			DuckDB db(db_path, config.get());                                                                          \
+			DuckDB db(db_path, nvm_db_path, config.get());                                                                          \
 		}                                                                                                              \
 	}                                                                                                                  \
 	void RunBenchmark(DuckDBBenchmarkState *state) override {                                                          \

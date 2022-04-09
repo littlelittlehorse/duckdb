@@ -7,7 +7,7 @@ using namespace duckdb;
 using namespace std;
 
 TEST_CASE("Test Pending Query API", "[api]") {
-	DuckDB db;
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	SECTION("Materialized result") {
@@ -128,7 +128,7 @@ static void parallel_pending_query(Connection *conn, bool *correct, size_t threa
 }
 
 TEST_CASE("Test parallel usage of pending query API", "[api][.]") {
-	auto db = make_unique<DuckDB>(nullptr);
+	auto db = make_unique<DuckDB>(nullptr, nullptr, nullptr);
 	auto conn = make_unique<Connection>(*db);
 
 	REQUIRE_NO_FAIL(conn->Query("CREATE TABLE integers(i INTEGER)"));
@@ -146,7 +146,7 @@ TEST_CASE("Test parallel usage of pending query API", "[api][.]") {
 }
 
 TEST_CASE("Test Pending Query Prepared Statements API", "[api]") {
-	DuckDB db;
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	SECTION("Standard prepared") {

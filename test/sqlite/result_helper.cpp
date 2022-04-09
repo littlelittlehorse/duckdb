@@ -356,7 +356,7 @@ void TestResultHelper::CheckStatementResult() {
 }
 
 vector<string> TestResultHelper::LoadResultFromFile(string fname, vector<string> names) {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	con.Query("PRAGMA threads=" + to_string(std::thread::hardware_concurrency()));
 	fname = StringUtil::Replace(fname, "<FILE>:", "");

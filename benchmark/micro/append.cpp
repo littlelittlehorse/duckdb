@@ -56,7 +56,7 @@ FINISH_BENCHMARK(Append100KIntegersINSERTAutoCommit)
 struct DuckDBPreparedState : public DuckDBBenchmarkState {
 	unique_ptr<PreparedStatement> prepared;
 
-	DuckDBPreparedState(string path) : DuckDBBenchmarkState(path) {
+	DuckDBPreparedState(string path, string nvm_path) : DuckDBBenchmarkState(path, nvm_path) {
 	}
 	virtual ~DuckDBPreparedState() {
 	}
@@ -64,7 +64,7 @@ struct DuckDBPreparedState : public DuckDBBenchmarkState {
 
 #define APPEND_BENCHMARK_PREPARED(CREATE_STATEMENT)                                                                    \
 	unique_ptr<DuckDBBenchmarkState> CreateBenchmarkState() override {                                                 \
-		auto result = make_unique<DuckDBPreparedState>(GetDatabasePath());                                             \
+		auto result = make_unique<DuckDBPreparedState>(GetDatabasePath(), "nvm_duckdb_benchmark_db.db");                                             \
 		return move(result);                                                                                           \
 	}                                                                                                                  \
 	void Load(DuckDBBenchmarkState *state_p) override {                                                                \

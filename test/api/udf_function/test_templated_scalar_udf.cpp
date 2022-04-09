@@ -7,7 +7,7 @@ using namespace std;
 
 TEST_CASE("UDF functions with template", "[coverage][.]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	con.EnableQueryVerification();
 

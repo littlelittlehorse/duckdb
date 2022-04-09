@@ -292,7 +292,7 @@ bool compare_result(string csv, ChunkCollection &collection, vector<LogicalType>
 	DataChunk parsed_result;
 	parsed_result.Initialize(sql_types);
 
-	DuckDB db;
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	BufferedCSVReader reader(*con.context, move(options), sql_types);
 	idx_t collection_index = 0;

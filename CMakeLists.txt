@@ -706,6 +706,7 @@ add_subdirectory(extension)
 #  endif()
 #  add_subdirectory(third_party)
 #endif()
+add_subdirectory(benchmark)
 add_subdirectory(test)
 add_subdirectory(third_party)
 

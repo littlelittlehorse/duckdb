@@ -70,7 +70,7 @@ static void create_use_prepared_statement(DuckDB *db) {
 }
 
 TEST_CASE("Test parallel dependencies in multiple connections", "[interquery][.]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	// disabled for now
 	return;
 
@@ -132,7 +132,7 @@ static void create_use_table_view(DuckDB *db, int threadnr) {
 	}
 }
 TEST_CASE("Test parallel dependencies with schemas and tables", "[interquery][.]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	// FIXME: this test crashes
 	return;
 

@@ -5,7 +5,7 @@ using namespace duckdb;
 using namespace std;
 
 TEST_CASE("Test table info api", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db), con2(db);
 
 	//! table is not found!

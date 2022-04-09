@@ -12,7 +12,7 @@ using namespace std;
 
 TEST_CASE("Test ART index with rollbacks", "[art][.]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE integers(i INTEGER)"));
@@ -38,7 +38,7 @@ TEST_CASE("Test ART index with rollbacks", "[art][.]") {
 
 TEST_CASE("Test ART index with the same value multiple times", "[art][.]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	REQUIRE_NO_FAIL(con.Query("CREATE TABLE integers(i INTEGER)"));
@@ -100,7 +100,7 @@ int full_scan(T *keys, idx_t size, T low, T high) {
 
 TEST_CASE("ART Floating Point Small", "[art-float-small]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	int64_t a, b;
 	vector<int64_t> min_values, max_values;
 	Connection con(db);
@@ -172,7 +172,7 @@ TEST_CASE("ART Floating Point Small", "[art-float-small]") {
 
 TEST_CASE("ART Floating Point Double Small", "[art-double-small]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	int64_t a, b;
 	vector<int64_t> min_values, max_values;
 	Connection con(db);
@@ -244,7 +244,7 @@ TEST_CASE("ART Floating Point Double Small", "[art-double-small]") {
 
 TEST_CASE("ART Floating Point", "[art-float][.]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	int64_t a, b;
 	vector<int64_t> min_values, max_values;
 	Connection con(db);
@@ -316,7 +316,7 @@ TEST_CASE("ART Floating Point", "[art-float][.]") {
 
 TEST_CASE("ART Floating Point Double", "[art-double][.]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	int64_t a, b;
 	vector<int64_t> min_values, max_values;
 	Connection con(db);

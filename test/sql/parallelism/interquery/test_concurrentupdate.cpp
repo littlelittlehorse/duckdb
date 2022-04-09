@@ -17,7 +17,7 @@ static constexpr int CONCURRENT_UPDATE_MONEY_PER_ACCOUNT = 10;
 
 TEST_CASE("Single thread update", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// enable detailed profiling
@@ -64,7 +64,7 @@ static void read_total_balance(DuckDB *db, bool *read_correct) {
 
 TEST_CASE("Concurrent update", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// enable detailed profiling
@@ -176,7 +176,7 @@ static void write_random_numbers_to_account(DuckDB *db, bool *correct, size_t nr
 
 TEST_CASE("Multiple concurrent updaters", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// enable detailed profiling

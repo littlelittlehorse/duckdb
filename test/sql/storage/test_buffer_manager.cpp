@@ -171,7 +171,7 @@ TEST_CASE("Test appending and checkpointing a table that exceeds buffer manager 
 TEST_CASE("Modifying the buffer manager limit at runtime for an in-memory database", "[storage][.]") {
 	unique_ptr<MaterializedQueryResult> result;
 
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	REQUIRE_NO_FAIL(con.Query("PRAGMA threads=1"));
 	REQUIRE_NO_FAIL(con.Query("PRAGMA force_compression='uncompressed'"));

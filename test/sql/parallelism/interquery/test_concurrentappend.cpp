@@ -13,7 +13,7 @@ static constexpr int CONCURRENT_APPEND_INSERT_ELEMENTS = 1000;
 
 TEST_CASE("Sequential append", "[interquery][.]") {
 	unique_ptr<MaterializedQueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	vector<unique_ptr<Connection>> connections;
 
@@ -81,7 +81,7 @@ static void insert_random_elements(DuckDB *db, bool *correct, int threadnr) {
 
 TEST_CASE("Concurrent append", "[interquery][.]") {
 	unique_ptr<QueryResult> result;
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	// enable detailed profiling

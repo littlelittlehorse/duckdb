@@ -47,7 +47,7 @@ public:
 };
 
 TEST_CASE("Test Progress Bar Fast", "[api]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	REQUIRE_NOTHROW(con.context->GetProgress());
 
@@ -116,7 +116,7 @@ TEST_CASE("Test Progress Bar Fast", "[api]") {
 }
 
 TEST_CASE("Test Progress Bar", "[api][.]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 	TestProgressBar test_progress(con.context.get());
 	REQUIRE_NO_FAIL(con.Query("create  table tbl as select range a, mod(range,10) b from range(10000000);"));
@@ -180,7 +180,7 @@ TEST_CASE("Test Progress Bar", "[api][.]") {
 }
 
 TEST_CASE("Test Progress Bar CSV", "[api][.]") {
-	DuckDB db(nullptr);
+	DuckDB db(nullptr, nullptr, nullptr);
 	Connection con(db);
 
 	TestProgressBar test_progress(con.context.get());
