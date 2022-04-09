@@ -20,10 +20,10 @@ void startup() {
 	DuckDB db(db_path, nvm_db_path, &config);
 
 	Connection con(db);
-
-//	con.Query("CREATE TABLE integers(i INTEGER)");
-//	con.Query("INSERT INTO integers VALUES (3)");
-//	con.Query("UPDATE integers SET INTEGER = 2");
+//
+	con.Query("CREATE TABLE integers(i INTEGER)");
+	con.Query("INSERT INTO integers VALUES (3)");
+	con.Query("UPDATE integers SET INTEGER = 2");
 	auto result = con.Query("SELECT * FROM integers");
 	result->Print();
 }

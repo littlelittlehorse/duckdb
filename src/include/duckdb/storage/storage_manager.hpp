@@ -30,8 +30,12 @@ public:
 
 	//! The BlockManager to read/store meta information and data in blocks
 	unique_ptr<BlockManager> block_manager;
+	//! The Nvm BlockManager to read/store meta information and data in blocks
+	unique_ptr<BlockManager> nvm_block_manager;
 	//! The BufferManager of the database
 	unique_ptr<BufferManager> buffer_manager;
+	//! The Nvm BufferManager of the database
+	unique_ptr<BufferManager> nvm_buffer_manager;
 	//! The database this storagemanager belongs to
 	DatabaseInstance &db;
 

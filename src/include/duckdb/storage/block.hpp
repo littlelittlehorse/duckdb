@@ -20,6 +20,7 @@ public:
 	Block(FileBuffer &source, block_id_t id);
 
 	block_id_t id;
+
 };
 
 struct BlockPointer {

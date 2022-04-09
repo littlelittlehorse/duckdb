@@ -13,7 +13,7 @@ using namespace duckdb;
 		DeleteDatabase(db_path);                                                                                       \
 		{                                                                                                              \
             DBConfig config;                                                                                           \
-            config.maximum_memory = 134217728;                                                                         \
+            config.maximum_memory = 33554432;                                                                         \
 			DuckDB db(db_path, &config);                                                                               \
 			Connection con(db);                                                                                        \
 			con.Query("CALL dbgen(sf=" + std::to_string(SF) + ")");                                                    \
